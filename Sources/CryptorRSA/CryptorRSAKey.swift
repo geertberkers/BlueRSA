@@ -80,7 +80,8 @@ extension CryptorRSA {
     
         // Get the Base64 representation of the PEM encoded string after stripping off the PEM markers...
         let base64 = try CryptorRSA.base64String(for: tmp)
-        let data = Data(base64Encoded: base64)!
+        let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters)!
+
 		
 		// Call the internal function to finish up...
 		return try CryptorRSA.createPublicKey(data: data)
