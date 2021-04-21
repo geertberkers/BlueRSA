@@ -26,6 +26,7 @@
 #endif
 
 import Foundation
+import LoggerAPI
 
 // MARK: -
 
@@ -57,7 +58,6 @@ extension CryptorRSA {
 	/// - Returns:				New `PublicKey` instance.
 	///
 	public class func createPublicKey(with data: Data) throws -> PublicKey {
-		
 		return try PublicKey(with: data)
 	}
 	
@@ -78,10 +78,25 @@ extension CryptorRSA {
             throw Error(code: ERR_CREATE_CERT_FAILED, reason: "Unable to create certificate from certificate data, incorrect format.")
         }
     
+        do {
+            let _ = try CryptorRSA.base64String(for: tmp)
+        } catch {
+            Log.error("Error: \(error.localizedDescription)")
+        }
+        
         // Get the Base64 representation of the PEM encoded string after stripping off the PEM markers...
         let base64 = try CryptorRSA.base64String(for: tmp)
+        
+        do {
+            if let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) {
+                let _ = try CryptorRSA.createPublicKey(data: data)
+            } else {
+                Log.error("Data is null!")
+            }
+        } catch {
+            Log.error("Error: \(error.localizedDescription)")
+        }
         let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters)!
-
 		
 		// Call the internal function to finish up...
 		return try CryptorRSA.createPublicKey(data: data)
